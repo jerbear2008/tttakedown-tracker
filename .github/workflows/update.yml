@@ -1,0 +1,38 @@
+name: Update data
+
+on:
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v3
+
+      - name: Setup deno
+        uses: denoland/setup-deno@v1
+        with:
+          deno-version: v1.x
+    
+      - name: Setup yt-dlp
+        uses: AnimMouse/setup-yt-dlp@v1
+
+      - name: Run script
+        run: deno run -A update.ts
+        env:
+          LIST_ID: UUpB959t8iPrxQWj7G6n0ctQ
+          WEBHOOK: ${{ secrets.WEBHOOK }}
+      
+      - name: Commit changes
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: Update data
+          commit_user_name: tttakedown-tracker[bot]
+          commit_user_email: iamjerbear4328@gmail.com
+          commit_author: jerbear <iamjerbear4328@gmail.com>

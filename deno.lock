@@ -1,0 +1,8 @@
+{
+  "version": "3",
+  "remote": {
+    "https://deno.land/x/dishooks@v1.1.0/mod.ts": "8d59ea17ac7222f32f2f9eb24c9a7743a95dfe398514384731f829cdcfd9f21d",
+    "https://deno.land/x/dishooks@v1.1.0/types.ts": "9ae22b3554702b3c7d81082c53762648f738c24ed8f653c627b0d4d4b94db0c6",
+    "https://deno.land/x/dishooks@v1.1.0/webhook.ts": "1c4c23d64a8e8685cafdc1cba5752b5e8b967837c961f980a0a74d2cd19a0781"
+  }
+}
