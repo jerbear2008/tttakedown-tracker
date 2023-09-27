@@ -35,3 +35,6 @@ jobs:
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
           commit_message: Update data
+          commit_user_name: tttakedown-tracker[bot]
+          commit_user_email: iamjerbear4328@gmail.com
+          commit_author: jerbear <iamjerbear4328@gmail.com>
