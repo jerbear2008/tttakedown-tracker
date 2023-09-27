@@ -6,7 +6,7 @@ on:
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   # This workflow contains a single job called "build"
-  build:
+  update:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
 
@@ -14,7 +14,9 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v3
-
+        with:
+          ref: ${{ github.head_ref }}
+        
       - name: Setup deno
         uses: denoland/setup-deno@v1
         with:
@@ -33,6 +35,3 @@ jobs:
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
           commit_message: Update data
-          commit_user_name: tttakedown-tracker[bot]
-          commit_user_email: iamjerbear4328@gmail.com
-          commit_author: jerbear <iamjerbear4328@gmail.com>
