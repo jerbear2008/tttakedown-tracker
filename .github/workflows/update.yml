@@ -3,7 +3,7 @@ name: Update data
 on:
   workflow_dispatch:
   schedule:
-    - cron: '37 0/6 * * *' # 4 times a day; :37 at hour 0,6,12,18
+    - cron: '37 0/3 * * *' # 8 times a day; :37 at every hour multiple of 3
 
 jobs:
   update:
