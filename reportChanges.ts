@@ -1,4 +1,5 @@
 import { type Embed, post } from 'https://deno.land/x/dishooks@v1.1.0/mod.ts'
+import { archiveVideo } from './tubeup.ts'
 import { getJSONFile, type jsonData } from './helpers.ts'
 
 export async function reportChanges() {
@@ -24,6 +25,7 @@ export async function reportChanges() {
       }
     )
   )[] = []
+  const archivePromises: Promise<unknown>[] = []
 
   for (const name of fileNames) {
     const oldData = await getJSONFile(`./data/${name}`) as jsonData
@@ -34,6 +36,9 @@ export async function reportChanges() {
       continue
     }
     if (!oldData) {
+      const archivePromise = archiveVideo(newData.url)
+      archivePromises.push(archivePromise)
+
       updates.push({
         type: 'new',
         data: newData,
@@ -50,6 +55,11 @@ export async function reportChanges() {
             {
               name: 'Length',
               value: newData.length,
+              inline: true,
+            },
+            {
+              name: 'Archive',
+              value: `https://archive.org/details/youtube-${newData.id}`,
               inline: true,
             },
           ],
@@ -74,6 +84,11 @@ export async function reportChanges() {
             {
               name: 'Length',
               value: oldData.length,
+              inline: true,
+            },
+            {
+              name: 'Archive',
+              value: `https://archive.org/details/youtube-${oldData.id}`,
               inline: true,
             },
           ],
@@ -120,6 +135,11 @@ export async function reportChanges() {
               value: newData.length,
               inline: true,
             },
+            {
+              name: 'Original Archive',
+              value: `https://archive.org/details/youtube-${newData.id}`,
+              inline: true,
+            },
           ],
         },
       })
@@ -141,6 +161,11 @@ export async function reportChanges() {
             {
               name: 'Length',
               value: newData.length,
+              inline: true,
+            },
+            {
+              name: 'Archive',
+              value: `https://archive.org/details/youtube-${newData.id}`,
               inline: true,
             },
           ],
@@ -166,4 +191,6 @@ export async function reportChanges() {
       },
     )
   }
+
+  await Promise.all(archivePromises)
 }
