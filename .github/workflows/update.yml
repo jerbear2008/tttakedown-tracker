@@ -27,7 +27,7 @@ jobs:
         run: |
           sudo apt install ffmpeg
           python3 -m pip install -U pip tubeup
-          ia configure --username=jerbear4328 --password='${{ secrets.IA_PASSWORD }}'
+          ia configure --username=iamjerbear4328@gmail.com --password='${{ secrets.IA_PASSWORD }}'
 
       - name: Run script
         run: deno run -A update.ts
