@@ -160,6 +160,7 @@ export async function reportChanges() {
       webhook,
       {
         username: 'TTTakedown Tracker',
+        avatar_url: 'https://cdn.discordapp.com/attachments/1156660229472264232/1156756524572606556/logo.png',
         // content: `\`\`\`json\n${JSON.stringify(update.data, null, 2)}\n\`\`\``,
         embeds: [update.embed],
       },
