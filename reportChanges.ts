@@ -177,19 +177,22 @@ export async function reportChanges() {
   }
   console.log(updates)
 
-  const webhook = Deno.env.get('WEBHOOK')
-  if (!webhook) throw new Error('Hey, where\'s the webhook?')
+  const webhookString = Deno.env.get('WEBHOOK')
+  if (!webhookString) throw new Error('Hey, where\'s the webhook?')
+  const webhooks = webhookString.split('\n')
 
   for (const update of updates) {
-    await post(
-      webhook,
-      {
-        username: 'TTTakedown Tracker',
-        avatar_url: 'https://cdn.discordapp.com/attachments/1156660229472264232/1156756524572606556/logo.png',
-        // content: `\`\`\`json\n${JSON.stringify(update.data, null, 2)}\n\`\`\``,
-        embeds: [update.embed],
-      },
-    )
+    for (const webhook of webhooks) {
+      await post(
+        webhook,
+        {
+          username: 'TTTakedown Tracker',
+          avatar_url: 'https://cdn.discordapp.com/attachments/1156660229472264232/1156756524572606556/logo.png',
+          // content: `\`\`\`json\n${JSON.stringify(update.data, null, 2)}\n\`\`\``, // debug
+          embeds: [update.embed],
+        },
+      )
+    }
   }
 
   await Promise.all(archivePromises)
