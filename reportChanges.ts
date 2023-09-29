@@ -68,6 +68,7 @@ export async function reportChanges() {
               'NEXT TIKTOK',
               '* silence *',
               'What is that?',
+              'Goonin\' with the boys',
             ])
           },
         },
@@ -104,6 +105,7 @@ export async function reportChanges() {
               'Ooooh noooo',
               'Crusty musty',
               'ON THE BUS?',
+              'A bowl full of sauce',
             ])
           },
         },
@@ -159,7 +161,7 @@ export async function reportChanges() {
             text: random([
               'Well, if it isn\'t the consequences of my own actions',
               'Thats the joker, thats him',
-              'Bro',
+              'He be eating aaaaaaall the little guys',
             ])
           },
         },
