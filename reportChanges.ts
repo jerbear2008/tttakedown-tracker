@@ -1,6 +1,6 @@
 import { type Embed, post } from 'https://deno.land/x/dishooks@v1.1.0/mod.ts'
 import { archiveVideo } from './tubeup.ts'
-import { getJSONFile, type jsonData } from './helpers.ts'
+import { getJSONFile, type jsonData, random } from './helpers.ts'
 
 export async function reportChanges() {
   const fileNames = new Set<string>()
@@ -63,6 +63,13 @@ export async function reportChanges() {
               inline: true,
             },
           ],
+          footer: {
+            text: random([
+              'NEXT TIKTOK',
+              '* silence *',
+              'What is that?',
+            ])
+          },
         },
       })
       continue
@@ -92,6 +99,13 @@ export async function reportChanges() {
               inline: true,
             },
           ],
+          footer: {
+            text: random([
+              'Ooooh noooo',
+              'Crusty musty',
+              'ON THE BUS?',
+            ])
+          },
         },
       })
       continue
@@ -141,6 +155,13 @@ export async function reportChanges() {
               inline: true,
             },
           ],
+          footer: {
+            text: random([
+              'Well, if it isn\'t the consequences of my own actions',
+              'Thats the joker, thats him',
+              'Bro',
+            ])
+          },
         },
       })
     }
@@ -169,6 +190,13 @@ export async function reportChanges() {
               inline: true,
             },
           ],
+          footer: {
+            text: random([
+              'What is that?',
+              'Crusty musty',
+              'Bro',
+            ])
+          },
         },
         data: newData,
         oldData,
@@ -188,8 +216,15 @@ export async function reportChanges() {
         {
           username: 'TTTakedown Tracker',
           avatar_url: 'https://cdn.discordapp.com/attachments/1156660229472264232/1156756524572606556/logo.png',
-          // content: `\`\`\`json\n${JSON.stringify(update.data, null, 2)}\n\`\`\``, // debug
-          embeds: [update.embed],
+          // content: `\`\`\`json\n${JSON.stringify(update, null, 2)}\n\`\`\``, // debug
+          embeds: [{
+            author: {
+              name: 'TTTakedown Tracker',
+              icon_url: 'https://cdn.discordapp.com/attachments/1156660229472264232/1156756524572606556/logo.png',
+              url: 'https://github.com/jerbear2008/tttakedown-tracker',
+            },
+            ...update.embed
+          }],
         },
       )
     }
