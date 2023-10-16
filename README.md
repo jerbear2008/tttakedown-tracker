@@ -1,5 +1,5 @@
 # TTTakedown Tracker
-> View the feed on the [dedicated Discord server](https://discord.gg/VhsUBKyvwT) or in [The DDDen](https://discord.gg/2GR9UFsyBk).
+> View the feed on the [dedicated Discord server](https://discord.gg/VhsUBKyvwT).
 
 Automaticially detects when SSSniperWolf takes down a clip or video, reporting to a [Discord channel](https://discord.gg/VhsUBKyvwT).
 
