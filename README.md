@@ -1,4 +1,6 @@
 # TTTakedown Tracker
+**This branch contains a rewrite of this codebase, it'll be much better :D**
+
 > View the feed on the [dedicated Discord server](https://discord.gg/VhsUBKyvwT).
 
 Automaticially detects when SSSniperWolf takes down a clip or video, reporting to a [Discord channel](https://discord.gg/VhsUBKyvwT).

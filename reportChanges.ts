@@ -1,236 +1,213 @@
 import { type Embed, post } from 'https://deno.land/x/dishooks@v1.1.0/mod.ts'
-import { archiveVideo } from './tubeup.ts'
-import { getJSONFile, type jsonData, random } from './helpers.ts'
+import config from './config.json' with { type: 'json' }
+import { chunkArray, random } from './helpers.ts'
+import type { change } from './video.ts'
+import { getYouTubeArchives } from './archive.ts'
 
-export async function reportChanges() {
-  const fileNames = new Set<string>()
-  for (const directory of ['data', 'new-data']) {
-    for await (const { name, isFile } of Deno.readDir(directory)) {
-      if (isFile) fileNames.add(name)
+const botInfo = {
+  username: 'TTTakedown Tracker',
+  avatar:
+    'https://cdn.discordapp.com/attachments/1156660229472264232/1156756524572606556/logo.png',
+  github: 'https://github.com/jerbear2008/tttakedown-tracker',
+}
+
+const randomQuote = () =>
+  random([
+    'Bro be usin\' his dog',
+    'Bro has a bag',
+    'Goonin\' with the boys',
+    'Have you no shame?',
+    'I can\'t do this no more',
+    'Nah, that\'s the Joker. That\'s him.',
+    'NEXT TIKTOK',
+    'On the bus',
+    'Ooooooh nooooooooo',
+    'Pathetic, you can do better',
+    'That\'s a bowl full of sauce',
+    'That\'s gross',
+    'This is how they be makin\' the sidewalks',
+    'This just be the harsh reality',
+    'Well, if it isn\'t the consequences of my own actions',
+    'You see this big guy? He be eatin\' aaaall the little guys.',
+    'You\'re a liar!',
+  ])
+
+export async function reportChanges(changes: change[]) {
+  console.log(changes.map(change => `Change: ${change.type} in "${change.video.data.title}"`).join('\n'))
+
+  const embeds = await Promise.all(changes.map(getEmbed))
+  const promises: Promise<unknown>[] = []
+
+  for (const chunk of chunkArray(embeds, 10)) {
+    for (const webhook of config.reportingWebhooks) {
+      promises.push(post(webhook, {
+        username: botInfo.username,
+        avatar_url: botInfo.avatar,
+        embeds: chunk,
+      }))
     }
   }
+  await Promise.all(promises)
+}
 
-  const updates: (
-    & {
-      data: jsonData
-      embed: Embed
-    }
-    & (
-      | {
-        type: 'new' | 'deleted'
-      }
-      | {
-        type: 'lengthChange' | 'titleChange'
-        oldData: jsonData
-      }
-    )
-  )[] = []
-  const archivePromises: Promise<unknown>[] = []
-
-  for (const name of fileNames) {
-    const oldData = await getJSONFile(`./data/${name}`) as jsonData
-    const newData = await getJSONFile(`./new-data/${name}`) as jsonData
-
-    if (!oldData && !newData) {
-      console.error(`file ${name} in list but doesn't exist??`)
-      continue
-    }
-    if (!oldData) {
-      const archivePromise = archiveVideo(newData.url)
-      archivePromises.push(archivePromise)
-
-      updates.push({
-        type: 'new',
-        data: newData,
-        embed: {
-          title: `New Video: "${newData.title}"`,
-          url: newData.url,
-          color: 2895153, // transparent, #2c2d31
-          fields: [
-            {
-              name: 'ID',
-              value: `\`${newData.id}\``,
-              inline: true,
-            },
-            {
-              name: 'Length',
-              value: newData.length,
-              inline: true,
-            },
-            {
-              name: 'Archive',
-              value: `https://archive.org/details/youtube-${newData.id}`,
-              inline: true,
-            },
-          ],
-          footer: {
-            text: random([
-              'NEXT TIKTOK',
-              '* silence *',
-              'What is that?',
-              'Goonin\' with the boys',
-            ])
-          },
-        },
-      })
-      continue
-    }
-    if (!newData) {
-      updates.push({
-        type: 'deleted',
-        data: oldData,
-        embed: {
-          title: `Video Deleted: "${oldData.title}"`,
-          url: oldData.url,
-          color: 15614019, // discord red
-          fields: [
-            {
-              name: 'ID',
-              value: `\`${oldData.id}\``,
-              inline: true,
-            },
-            {
-              name: 'Length',
-              value: oldData.length,
-              inline: true,
-            },
-            {
-              name: 'Archive',
-              value: `https://archive.org/details/youtube-${oldData.id}`,
-              inline: true,
-            },
-          ],
-          footer: {
-            text: random([
-              'Ooooh noooo',
-              'Crusty musty',
-              'ON THE BUS?',
-              'A bowl full of sauce',
-            ])
-          },
-        },
-      })
-      continue
-    }
-
-    if (oldData.length !== newData.length) {
-      const parseLength = (str: string) => {
-        const parts = str.split(':')
-        let length = 0
-        parts.forEach((part, i) => {
-          const multiplier = Math.pow(60, parts.length - i - 1)
-          length += Number(part) * multiplier
-        })
-        return length
-      }
-      const removedSeconds = parseLength(oldData.length) -
-        parseLength(newData.length)
-      updates.push({
-        type: 'lengthChange',
-        data: newData,
-        oldData,
-        embed: {
-          title: `${Math.abs(removedSeconds)} seconds ${
-            removedSeconds >= 0 ? 'removed' : 'added'
-          }: "${newData.title}"`,
-          url: newData.url,
-          color: 15982188, // discord yellow
-          fields: [
-            {
-              name: 'ID',
-              value: `\`${newData.id}\``,
-              inline: true,
-            },
-            {
-              name: 'Old Length',
-              value: oldData.length,
-              inline: true,
-            },
-            {
-              name: 'New Length',
-              value: newData.length,
-              inline: true,
-            },
-            {
-              name: 'Original Archive',
-              value: `https://archive.org/details/youtube-${newData.id}`,
-              inline: true,
-            },
-          ],
-          footer: {
-            text: random([
-              'Well, if it isn\'t the consequences of my own actions',
-              'Thats the joker, thats him',
-              'He be eating aaaaaaall the little guys',
-            ])
-          },
-        },
-      })
-    }
-    if (oldData.title !== newData.title) {
-      updates.push({
-        type: 'titleChange',
-        embed: {
-          title: `Title changed: "${newData.title}"`,
-          description: `Old title: "${oldData.title}"`,
-          url: newData.url,
-          color: 14242717, // discord fuchsia
-          fields: [
-            {
-              name: 'ID',
-              value: `\`${newData.id}\``,
-              inline: true,
-            },
-            {
-              name: 'Length',
-              value: newData.length,
-              inline: true,
-            },
-            {
-              name: 'Archive',
-              value: `https://archive.org/details/youtube-${newData.id}`,
-              inline: true,
-            },
-          ],
-          footer: {
-            text: random([
-              'What is that?',
-              'Crusty musty',
-              'Bro',
-            ])
-          },
-        },
-        data: newData,
-        oldData,
-      })
-    }
+export async function getEmbed(change: change): Promise<Embed> {
+  const basicDetails = {
+    author: {
+      name: botInfo.username,
+      icon_url: botInfo.avatar,
+      url: botInfo.github,
+    },
+    footer: {
+      text: randomQuote(),
+    },
   }
-  console.log(updates)
-
-  const webhookString = Deno.env.get('WEBHOOK')
-  if (!webhookString) throw new Error('Hey, where\'s the webhook?')
-  const webhooks = webhookString.split('\n')
-
-  for (const update of updates) {
-    for (const webhook of webhooks) {
-      await post(
-        webhook,
-        {
-          username: 'TTTakedown Tracker',
-          avatar_url: 'https://cdn.discordapp.com/attachments/1156660229472264232/1156756524572606556/logo.png',
-          // content: `\`\`\`json\n${JSON.stringify(update, null, 2)}\n\`\`\``, // debug
-          embeds: [{
-            author: {
-              name: 'TTTakedown Tracker',
-              icon_url: 'https://cdn.discordapp.com/attachments/1156660229472264232/1156756524572606556/logo.png',
-              url: 'https://github.com/jerbear2008/tttakedown-tracker',
-            },
-            ...update.embed
-          }],
+  const archiveUrl = await getYouTubeArchives(change.video.data.id) ??
+    `https://archive.org/details/youtube-${change.video.data.id}`
+  switch (change.type) {
+    case 'newVideo':
+      return {
+        ...basicDetails,
+        title: `New Video: "${change.video.data.title}"`,
+        url: change.video.url,
+        color: 2895153, // transparent, #2c2d31
+        fields: [
+          {
+            name: 'ID',
+            value: `\`${change.video.data.id}\``,
+            inline: true,
+          },
+          {
+            name: 'Length',
+            value: change.video.humanDuration,
+            inline: true,
+          },
+          {
+            name: 'Archive',
+            value: archiveUrl, // todo: improve
+            inline: true,
+          },
+        ],
+        image: {
+          url: change.video.data.thumbnailURL,
         },
-      )
-    }
+      }
+    case 'removedVideo':
+      return {
+        ...basicDetails,
+        title: `Video Deleted: "${change.video.data.title}"`,
+        url: change.video.url,
+        color: 15614019, // discord red
+        fields: [
+          {
+            name: 'ID',
+            value: `\`${change.video.data.id}\``,
+            inline: true,
+          },
+          {
+            name: 'Length',
+            value: change.video.humanDuration,
+            inline: true,
+          },
+          {
+            name: 'Archive',
+            value: archiveUrl, // todo: improve
+            inline: true,
+          },
+        ],
+        image: {
+          url: change.video.data.thumbnailURL,
+        },
+      }
+    case 'lengthChange':
+      return {
+        ...basicDetails,
+        title: `${
+          Math.abs(change.video.data.duration - change.oldDuration)
+        } seconds ${
+          change.video.data.duration > change.oldDuration ? 'added' : 'removed'
+        }: "${change.video.data.title}"`,
+        url: change.video.url,
+        color: 15982188, // discord yellow
+        fields: [
+          {
+            name: 'ID',
+            value: `\`${change.video.data.id}\``,
+            inline: true,
+          },
+          {
+            name: 'Old Length',
+            value: change.oldHumanDuration,
+            inline: true,
+          },
+          {
+            name: 'New Length',
+            value: change.video.humanDuration,
+            inline: true,
+          },
+          {
+            name: 'Original Archive',
+            value: archiveUrl, // todo: improve
+            inline: true,
+          },
+        ],
+        image: {
+          url: change.video.data.thumbnailURL,
+        },
+      }
+    case 'titleChange':
+      return {
+        ...basicDetails,
+        title: `Title changed: "${change.video.data.title}"`,
+        description: `Old title: "${change.oldTitle}"`,
+        url: change.video.url,
+        color: 14242717, // discord fuchsia
+        fields: [
+          {
+            name: 'ID',
+            value: `\`${change.video.data.id}\``,
+            inline: true,
+          },
+          {
+            name: 'Length',
+            value: change.video.humanDuration,
+            inline: true,
+          },
+          {
+            name: 'Archive',
+            value: archiveUrl, // todo: improve
+            inline: true,
+          },
+        ],
+        image: {
+          url: change.video.data.thumbnailURL,
+        },
+      }
+    case 'relistedVideo':
+      return {
+        ...basicDetails,
+        title: `Video relisted: "${change.video.data.title}"`,
+        url: change.video.url,
+        color: 15982188, // discord yellow
+        fields: [
+          {
+            name: 'ID',
+            value: `\`${change.video.data.id}\``,
+            inline: true,
+          },
+          {
+            name: 'Length',
+            value: change.video.humanDuration,
+            inline: true,
+          },
+          {
+            name: 'Archive',
+            value: archiveUrl, // todo: improve
+            inline: true,
+          },
+        ],
+        image: {
+          url: change.video.data.thumbnailURL,
+        },
+      }
   }
-
-  await Promise.all(archivePromises)
 }
