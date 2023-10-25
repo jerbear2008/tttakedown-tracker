@@ -1,26 +1,9 @@
 import { VideoMap } from './video.ts'
 import { reportChanges } from './reportChanges.ts'
+import config from './config.json' with { type: 'json' }
 
-const channels = [
-  {
-    name: 'SSSniperWolf',
-    filename: 'sssniperwolf',
-    listID: 'UUpB959t8iPrxQWj7G6n0ctQ',
-  },
-  {
-    name: 'SSSniperWolf Top Videos',
-    filename: 'sssniperwolf-top-videos',
-    listID: 'UULFGovFxnYvAR_OozTMzQqt3A',
-  },
-  {
-    name: 'Little Lia',
-    filename: 'little-lia',
-    listID: 'UULF2hFZwNM71iOOCY3guLE7KQ',
-  }
-]
-
-// deno-lint-ignore no-unused-vars
-await Promise.all(channels.map(async ({ name, filename, listID }) => {
+console.time('Full scan')
+await Promise.all(config.channels.map(async ({ name, filename, listID }) => {
   let savedData: ReturnType<typeof VideoMap.prototype.toData> | null = null
   try {
     savedData = JSON.parse(await Deno.readTextFile(`./data/${filename}.json`))
@@ -29,10 +12,13 @@ await Promise.all(channels.map(async ({ name, filename, listID }) => {
   }
   const videos = VideoMap.fromData(savedData ?? { listID, videos: [] })
 
+  console.time(`Scan and report ${name}`)
   const updates = await videos.update()
   if (savedData) await reportChanges(updates)
+  console.timeEnd(`Scan and report ${name}`)
 
   await Deno.writeTextFile(`./data/${filename}.json`, JSON.stringify(videos.toData()))
 }))
 
+console.timeEnd('Full scan')
 console.log('Done')

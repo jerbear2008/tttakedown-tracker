@@ -43,7 +43,9 @@ export async function videoData(id: string): Promise<invidiousVideoData> {
   const response = await fetch(
     new URL(`/api/v1/videos/${id}`, instance),
   )
-  if (!response.ok) throw new Error('Failed to get video data')
+  if (!response.ok) {
+    throw new Error('TODO: handle error')
+  }
   const videoData = await response.json() as invidiousVideoData
   return videoData
 }

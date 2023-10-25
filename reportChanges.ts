@@ -1,5 +1,5 @@
 import { type Embed, post } from 'https://deno.land/x/dishooks@v1.1.0/mod.ts'
-import webhooks from './webhooks.json' with { type: 'json' }
+import config from './config.json' with { type: 'json' }
 import { chunkArray, random } from './helpers.ts'
 import type { change } from './video.ts'
 import { getYouTubeArchives } from './archive.ts'
@@ -33,10 +33,13 @@ const randomQuote = () =>
   ])
 
 export async function reportChanges(changes: change[]) {
+  console.log(changes.map(change => `Change: ${change.type} in "${change.video.data.title}"`).join('\n'))
+
   const embeds = await Promise.all(changes.map(getEmbed))
   const promises: Promise<unknown>[] = []
+
   for (const chunk of chunkArray(embeds, 10)) {
-    for (const webhook of webhooks) {
+    for (const webhook of config.reportingWebhooks) {
       promises.push(post(webhook, {
         username: botInfo.username,
         avatar_url: botInfo.avatar,

@@ -1,4 +1,4 @@
-import 'https://deno.land/std@0.204.0/dotenv/load.ts'
+import config from './config.json' with { type: 'json' }
 const disableArchive = false
 
 export async function archiveURL(url: string) {
@@ -8,7 +8,7 @@ export async function archiveURL(url: string) {
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',
       'Accept': 'application/json',
-      'Authorization': `LOW ${Deno.env.get('IA_S3_KEY')}`,
+      'Authorization': `LOW ${config.internetArchiveKey}`,
     },
     body: new URLSearchParams({
       url,
@@ -31,7 +31,7 @@ export async function archiveYouTubeFile(id: string) {
       // '--metadata=collection:mirrortube',
       `https://www.youtube.com/watch?v=${id}`,
     ],
-    stdin: 'inherit',
+    // stdout: 'inherit',
     stderr: 'inherit',
   })
   await downloadCommand.output()
@@ -50,7 +50,7 @@ export async function getYouTubeArchives(id: string) {
     {
       headers: {
         'Accept': 'application/json',
-        'Authorization': `LOW ${Deno.env.get('IA_S3_KEY')}`,
+        'Authorization': `LOW ${config.internetArchiveKey}`,
       },
     },
   )
@@ -74,7 +74,7 @@ export async function getYouTubeArchives(id: string) {
     {
       headers: {
         'Accept': 'application/json',
-        // 'Authorization': `LOW ${Deno.env.get('IA_S3_KEY')}`,
+        // 'Authorization': `LOW ${config.internetArchiveKey}`,
       },
     },
   )

@@ -1,0 +1,23 @@
+{
+  "scanFrequencyMinutes": 15,
+  "channels": [
+    {
+      "name": "SSSniperWolf",
+      "filename": "sssniperwolf",
+      "listID": "UUpB959t8iPrxQWj7G6n0ctQ"
+    },
+    {
+      "name": "SSSniperWolf Top Videos",
+      "filename": "sssniperwolf-top-videos",
+      "listID": "UULFGovFxnYvAR_OozTMzQqt3A"
+    },
+    {
+      "name": "Little Lia",
+      "filename": "little-lia",
+      "listID": "UULF2hFZwNM71iOOCY3guLE7KQ"
+    }
+  ],
+  "reportingWebhooks": ["https://discord.com/api/webhooks/***"],
+  "debugWebhook": "https://discord.com/api/webhooks/***",
+  "internetArchiveKey": "***:***"
+}
