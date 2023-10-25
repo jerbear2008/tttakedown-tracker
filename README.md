@@ -9,4 +9,5 @@ Quickly and reliably detects takedowns and changes on SSSniperWolf's channels, r
 - Watch for changes in publicity, title, and length
 - Report changes in a fancy Discord embed
 - Update every 10 minutes
+
 This is the tracker that [Jack mentioned on stream](https://clips.twitch.tv/TriumphantDepressedBottleMVGame-HIFStczsE6UDnwHw)! :D
