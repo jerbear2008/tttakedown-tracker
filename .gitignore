@@ -1,0 +1,5 @@
+.env
+webhooks.json
+data/
+tmp*
+temp*
