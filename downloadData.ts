@@ -30,7 +30,7 @@ const instancesPromise = (async () => {
     .filter(([_domain, data]) =>
       data.api &&
       data.type === 'https' &&
-      data.monitor.statusClass === 'success' &&
+      data.monitor?.statusClass === 'success' &&
       data.region === 'US' &&
       Number(data.monitor['30dRatio'].ratio) > 97
     )
@@ -245,15 +245,17 @@ type invidiousInstancesData = [string, {
   api: boolean
   type: string
   uri: string
-  monitor: {
-    monitorId: number
-    createdAt: number
-    statusClass: string
-    name: string
-    url: null
-    type: string
-    dailyRatios: { ratio: string; label: string }[]
-    '90dRatio': { ratio: string; label: string }
-    '30dRatio': { ratio: string; label: string }
-  }
+  monitor:
+    | null
+    | {
+      monitorId: number
+      createdAt: number
+      statusClass: string
+      name: string
+      url: null
+      type: string
+      dailyRatios: { ratio: string; label: string }[]
+      '90dRatio': { ratio: string; label: string }
+      '30dRatio': { ratio: string; label: string }
+    }
 }][]

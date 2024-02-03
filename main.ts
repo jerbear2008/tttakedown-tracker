@@ -1,5 +1,5 @@
 import config from './config.json' with { type: 'json' }
-import { post } from 'https://deno.land/x/dishooks@v1.1.0/webhook.ts'
+import { post } from './deps.ts'
 
 async function reportError(error: string) {
   await post(config.debugWebhook, {
@@ -39,7 +39,29 @@ globalThis.addEventListener('unhandledrejection', async (event) => {
   )
 })
 
+// setting up ia credential
+await Deno.writeTextFile(
+  `${Deno.env.get('HOME')}/.ia`,
+  `
+[s3]
+access = ${config.internetArchiveKey.split(':')[0]}
+secret = ${config.internetArchiveKey.split(':')[1]}
+`,
+)
+
 runScan()
-setInterval(runScan, config.scanFrequencyMinutes * 60 * 1000)
+const interval = setInterval(runScan, config.scanFrequencyMinutes * 60 * 1000)
+
+// handle shutdown
+let stopping = false
+Deno.addSignalListener('SIGINT', () => {
+  if (stopping) {
+    console.log(`Shutting down immediately....`)
+    Deno.exit()
+  }
+  console.log(`Shutting down gracefully`)
+  clearInterval(interval)
+  stopping = true
+})
 
 console.log('Started!')
