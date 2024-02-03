@@ -1,4 +1,4 @@
-import { type Embed, post } from 'https://deno.land/x/dishooks@v1.1.0/mod.ts'
+import { type Embed, post } from './deps.ts'
 import config from './config.json' with { type: 'json' }
 import { chunkArray, random } from './helpers.ts'
 import type { change } from './video.ts'

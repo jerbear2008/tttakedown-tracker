@@ -1,0 +1,8 @@
+version: '3.7'
+services:
+  tttakedown-tracker:
+    build: .
+    volumes:
+      - ./config.json:/app/config.json:ro
+      - ./data:/app/data
+    restart: unless-stopped
